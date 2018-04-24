@@ -35,10 +35,7 @@ if __name__ == '__main__':
     elif args.process_gt:
         assert args.ground_truth is not None, \
             'You must provide the path to the ground truth images'
-        train_path = args.training_set
-        test_path = args.test_set
-        path = train_path if test_path is None else test_path
-        process_image.process_ground_truth(path)
+        process_image.process_ground_truth(args.ground_truth)
     elif args.create_dataset:
         assert args.training_set is not None or args.test_set is not None, \
             'You must provide the path to the training or test set'
