@@ -109,25 +109,54 @@ def process_ground_truth(folder_path):
             destination_name, img_arr)
 
 
-def compute_img_patches(train_path, ground_truth):
+def compute_img_patches(train_img, g_truth_img):
     """
     Computes 65 * 65 patches for the
     retina image provided. It also computes
     the label for the patch.
 
-    train_path: Path to the train/ test img
-    ground_truth: Path to the human vessel
-                  segmented images
+    train_img: Path to the train/ test img
+    g_truth_img: Path to the human vessel
+                 segmented images
     """
-    img_arr = imageio.imread(train_path)
-    g_truth = imageio.imread(ground_truth)
+    labels = []
+    img_patches = []
+    sub_labels = []
+    sub_img_patches = []
+    i = 0
+    j = 0
+    img_arr = imageio.imread(train_img)
+    g_truth = imageio.imread(g_truth_img)
     assert np.max(g_truth) == 255 and np.min(g_truth) == 0, (
             'Ensure the ground truth image '
             'has a max pixel val of 255 and a min val of 0')
-    start_center = math.ceil(P_WIDTH / 2)
+
+    while i < img_arr.shape[0] - P_WIDTH:
+        while j < img_arr.shape[1] - P_WIDTH:
+            temp_patch = img_arr[i:i + P_WIDTH, j:j + P_WIDTH, :]
+            x_pixel = math.ceil(i + (P_WIDTH / 2))
+            y_pixel = math.ceil(j + (P_WIDTH / 2))
+            label = 1 if g_truth[x_pixel, y_pixel] == 255 else 0
+            img_patches.append(temp_patch)
+            labels.append(label)
+            j += 1
+        j = 0
+        i += 1
+    count_pos = labels.count(1)
+    # get all zeros so we can reduce the negative examples
+    np_labels = np.array(labels)
+    index_zero = np.where(np_labels == 0)[0]
+    np.random.shuffle(index_zero)
+    keep_zeros = index_zero[:count_pos]
+    for i, v in enumerate(labels):
+        if v == 0 and i not in keep_zeros:
+            continue
+        sub_img_patches.append(img_patches[i])
+        sub_labels.append(labels[i])
+    return sub_img_patches, sub_labels
 
 
-def create_patches(folder_path):
+def create_patches(folder_path, g_truth_path):
     """
     Computes 65 * 65 patches to use
     as input to the CNN with their
@@ -135,28 +164,43 @@ def create_patches(folder_path):
 
     folder_path: The base path for the training
                  and test sets
+    g_truth_path: Path to the ground truth images
     """
 
     img_data = []
     img_labels = []
     processed_imgs = os.path.join(
         folder_path, 'processed')
+    processed_g_imgs = os.path.join(
+        g_truth_path, 'processed')
     # check if the folder exists
-    if (os.path.exists(processed_imgs) and
-            os.path.isdir(processed_imgs)):
+    if not (os.path.exists(processed_imgs) and
+            os.path.isdir(processed_imgs) and
+            os.path.exists(processed_g_imgs) and
+            os.path.isdir(processed_g_imgs)):
 
         raise FileNotFoundError(
-            f'Ensure that the path {processed_imgs} exists.')
+            f'Ensure that {processed_imgs} and {processed_g_imgs} exist.')
     imgs = os.listdir(processed_imgs)
     imgs = [i for i in imgs if i.endswith('.tif')]
+    gt_imgs = os.listdir(processed_g_imgs)
+    gt_imgs = [i for i in gt_imgs if i.endswith('.gif')]
     for image_name in imgs:
+        img_no, _ = image_name.split('_')
+        g_truth_img_name = ''
+        for gt_image in gt_imgs:
+            if gt_image.startswith(img_no):
+                g_truth_img_name = gt_image
+                break
+
         LOGGER.info(
-            f'Creating patches for {image_name}.')
+            f'Creating patches for {image_name} and ground truth {g_truth_img_name}.')  # noqa
         destination_name = os.path.join(
             processed_imgs, image_name)
+        g_truth_img = os.path.join(
+            processed_g_imgs, g_truth_img_name)
         img_arr, labels = compute_img_patches(
-            destination_name, )
+            destination_name, g_truth_img)
         img_labels.extend(labels)
-        img_data.append(img_arr)
-
+        img_data.extend(img_arr)
     return np.array(img_data), np.array(img_labels)
