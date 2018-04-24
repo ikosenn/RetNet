@@ -102,7 +102,7 @@ def main(unused_argv):
     train_img, train_labels = create_patches(
         train_path, gt_train_path, '/tmp/train_pickle.p')
     eval_img, eval_labels = create_patches(
-        test_path, gt_test_path, '/tmp/test_pickle.p')
+        test_path, gt_test_path, '/tmp/eval_pickle.p')
     retnet_classifier = tf.estimator.Estimator(
         model_fn=cnn_model_fn,
         model_dir='/tmp/retnet_covnet_model')

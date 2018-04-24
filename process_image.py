@@ -178,7 +178,8 @@ def create_patches(folder_path, g_truth_path, pickle_file=None):
     start_time = time.process_time()
     if pickle_file is not None and os.path.exists(pickle_file):
         LOGGER.info(f'Using pickle stored in {pickle_file}')
-        obj = pickle.load(pickle_file)
+        with open(pickle_file, 'rb') as read_f:
+            obj = pickle.load(read_f)
         elapsed = time.process_time() - start_time
         LOGGER.info(f'EXEC TIME PICKLE: {elapsed}')
         return obj.data, obj.labels
@@ -218,13 +219,16 @@ def create_patches(folder_path, g_truth_path, pickle_file=None):
             destination_name, g_truth_img)
         img_labels.extend(labels)
         img_data.extend(img_arr)
-    data = np.array(img_data, dtype=np.float64)
-    labels = np.array(img_labels, np.float64)
+    data = np.array(img_data, dtype=np.int32)
+    labels = np.array(img_labels, dtype=np.int32)
+    del img_labels
+    del img_data
 
     elapsed = time.process_time() - start_time
     LOGGER.info(f'EXEC TIME NORMAL: {elapsed}')
     if pickle_file is not None:
         LOGGER.info(f'Saving img data and labels to file: {pickle_file}')
         obj = ImagePatch(data, labels)
-        pickle.dump(obj, pickle_file)
+        with open(pickle_file, 'wb') as f:
+            pickle.dump(obj, f)
     return data, labels
