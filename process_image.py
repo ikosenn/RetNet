@@ -216,7 +216,9 @@ def create_patches(folder_path, g_truth_path, pickle_file=None):
         img_labels.extend(labels)
         img_data.extend(img_arr)
     data = np.array(img_data)
+    data = np.astype(np.float64)
     labels = np.array(img_labels)
+    labels = np.astype(np.float64)
 
     if pickle_file is not None:
         LOGGER.info(f'Saving img data and labels to file: {pickle_file}')
