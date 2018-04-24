@@ -4,6 +4,7 @@ import logging
 import sys
 import math
 import pickle
+import time
 
 import numpy as np
 import imageio
@@ -174,10 +175,12 @@ def create_patches(folder_path, g_truth_path, pickle_file=None):
     g_truth_path: Path to the ground truth images
     pickle_file: Define this to save or load data to/ from pickles
     """
-
+    start_time = time.process_time()
     if pickle_file is not None and os.path.exists(pickle_file):
         LOGGER.info(f'Using pickle stored in {pickle_file}')
         obj = pickle.load(pickle_file)
+        elapsed = time.process_time() - start_time
+        LOGGER.info(f'EXEC TIME PICKLE: {elapsed}')
         return obj.data, obj.labels
     img_data = []
     img_labels = []
@@ -215,11 +218,11 @@ def create_patches(folder_path, g_truth_path, pickle_file=None):
             destination_name, g_truth_img)
         img_labels.extend(labels)
         img_data.extend(img_arr)
-    data = np.array(img_data)
-    data = np.astype(np.float64)
-    labels = np.array(img_labels)
-    labels = np.astype(np.float64)
+    data = np.array(img_data, dtype=np.float64)
+    labels = np.array(img_labels, np.float64)
 
+    elapsed = time.process_time() - start_time
+    LOGGER.info(f'EXEC TIME NORMAL: {elapsed}')
     if pickle_file is not None:
         LOGGER.info(f'Saving img data and labels to file: {pickle_file}')
         obj = ImagePatch(data, labels)
