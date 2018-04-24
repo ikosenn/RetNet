@@ -137,3 +137,7 @@ def main(unused_argv):
         input_fn=eval_input_fn,
     )
     print(f'TRAIN RESULTS: {results}')
+
+
+if __name__ == '__main__':
+    tf.app.run()
