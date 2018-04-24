@@ -2,7 +2,7 @@ import os
 
 import tensorflow as tf
 
-from process_images import create_patches
+from process_image import create_patches
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
