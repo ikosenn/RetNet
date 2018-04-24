@@ -3,6 +3,7 @@ import shutil
 import logging
 import sys
 import math
+import pickle
 
 import numpy as np
 import imageio
@@ -12,6 +13,12 @@ LOGGER = logging.getLogger(__name__)
 
 P_WIDTH = 65
 P_HEIGHT = P_WIDTH
+
+
+class ImagePatch:
+    def __init__(self, data, labels):
+        self.data = data
+        self.labels = labels
 
 
 def set_green_channel(folder_path):
@@ -156,7 +163,7 @@ def compute_img_patches(train_img, g_truth_img):
     return sub_img_patches, sub_labels
 
 
-def create_patches(folder_path, g_truth_path):
+def create_patches(folder_path, g_truth_path, pickle_file=None):
     """
     Computes 65 * 65 patches to use
     as input to the CNN with their
@@ -165,8 +172,13 @@ def create_patches(folder_path, g_truth_path):
     folder_path: The base path for the training
                  and test sets
     g_truth_path: Path to the ground truth images
+    pickle_file: Define this to save or load data to/ from pickles
     """
 
+    if pickle_file is not None and os.path.exists(pickle_file):
+        LOGGER.info(f'Using pickle stored in {pickle_file}')
+        obj = pickle.load(pickle_file)
+        return obj.data, obj.labels
     img_data = []
     img_labels = []
     processed_imgs = os.path.join(
@@ -203,4 +215,11 @@ def create_patches(folder_path, g_truth_path):
             destination_name, g_truth_img)
         img_labels.extend(labels)
         img_data.extend(img_arr)
-    return np.array(img_data), np.array(img_labels)
+    data = np.array(img_data)
+    labels = np.array(img_labels)
+
+    if pickle_file is not None:
+        LOGGER.info(f'Saving img data and labels to file: {pickle_file}')
+        obj = ImagePatch(data, labels)
+        pickle.dump(obj, pickle_file)
+    return data, labels

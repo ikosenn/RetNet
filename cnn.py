@@ -100,12 +100,12 @@ def main(unused_argv):
     test_path = os.getenv('RT_TEST_PATH')
     gt_test_path = os.getenv('RT_GT_TEST_PATH')
     train_img, train_labels = create_patches(
-        train_path, gt_train_path)
+        train_path, gt_train_path, '/tmp/train_pickle.p')
     eval_img, eval_labels = create_patches(
-        test_path, gt_test_path)
+        test_path, gt_test_path, '/tmp/test_pickle.p')
     retnet_classifier = tf.estimator.Estimator(
         model_fn=cnn_model_fn,
-        model_fir='/tmp/retnet_covnet_model')
+        model_dir='/tmp/retnet_covnet_model')
     tensors_to_log = {
         'predictions': 'softmax_tensor',
         'accuracy': 'tf_accuracy',
