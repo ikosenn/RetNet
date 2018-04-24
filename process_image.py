@@ -219,7 +219,7 @@ def create_patches(folder_path, g_truth_path, pickle_file=None):
             destination_name, g_truth_img)
         img_labels.extend(labels)
         img_data.extend(img_arr)
-    data = np.array(img_data, dtype=np.int32)
+    data = np.array(img_data, dtype=np.float32)
     labels = np.array(img_labels, dtype=np.int32)
     del img_labels
     del img_data

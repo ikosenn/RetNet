@@ -51,7 +51,7 @@ def cnn_model_fn(features, labels, mode):
     dense = tf.layers.dense(
         inputs=pool4_flat, units=100, activation=tf.nn.relu)
     dropout = tf.layers.dropout(
-        inputs=dense, dropout=0.2,
+        inputs=dense, rate=0.2,
         training=mode == tf.estimator.ModeKeys.TRAIN)
     logits = tf.layers.dense(inputs=dropout, units=2)
 
@@ -100,9 +100,9 @@ def main(unused_argv):
     test_path = os.getenv('RT_TEST_PATH')
     gt_test_path = os.getenv('RT_GT_TEST_PATH')
     train_img, train_labels = create_patches(
-        train_path, gt_train_path, '/tmp/train_pickle.p')
+        train_path, gt_train_path)
     eval_img, eval_labels = create_patches(
-        test_path, gt_test_path, '/tmp/eval_pickle.p')
+        test_path, gt_test_path)
     retnet_classifier = tf.estimator.Estimator(
         model_fn=cnn_model_fn,
         model_dir='/tmp/retnet_covnet_model')
