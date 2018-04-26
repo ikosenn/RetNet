@@ -69,14 +69,11 @@ def cnn_model_fn(features, labels, mode):
 
     eval_metric_ops = {
         'accuracy': tf.metrics.accuracy(
-            labels=labels, predictions=predictions['classes'],
-            name='tf_accuracy'),
+            labels=labels, predictions=predictions['classes']),
         'recall': tf.metrics.recall(
-            labels=labels, predictions=predictions['classes'],
-            name='tf_recall'),
+            labels=labels, predictions=predictions['classes']),
         'precision': tf.metrics.precision(
-            labels=labels, predictions=predictions['classes'],
-            name='tf_precision'),
+            labels=labels, predictions=predictions['classes']),
     }
     tf.summary.scalar('accuracy', eval_metric_ops['accuracy'][1])
     tf.summary.scalar('recall', eval_metric_ops['recall'][1])
@@ -108,9 +105,6 @@ def main(unused_argv):
         model_dir='/tmp/retnet_covnet_model')
     tensors_to_log = {
         'predictions': 'softmax_tensor',
-        'accuracy': 'tf_accuracy',
-        'recall': 'tf_recall',
-        'precision': 'tf_precision'
     }
     logging_hook = tf.train.LoggingTensorHook(
         tensors=tensors_to_log, every_n_iter=1000)

@@ -232,3 +232,39 @@ def create_patches(folder_path, g_truth_path, pickle_file=None):
         with open(pickle_file, 'wb') as f:
             pickle.dump(obj, f)
     return data, labels
+
+
+def process_prediction(img_path):
+    """
+    Generates a numpy array for an image that
+    is to be processed. It first converts the image
+    to the green alpha channel and then pads it
+
+    img_path: The path to the image to pre-process
+                and generate the corresponding np array.
+    """
+    i = 0
+    j = 0
+    img_patches = []
+    img_arr = imageio.imread(img_path)
+    img_arr[:, :, [0, 2]] = 0
+    # increase image size
+    # allows pixels on the edge to
+    # also be classified
+    padd_size = P_WIDTH // 2
+
+    img_arr = np.pad(
+        img_arr, [
+            (padd_size, padd_size),
+            (padd_size, padd_size),
+            (0, 0)
+        ], 'constant')
+
+    while i < img_arr.shape[0] - P_WIDTH:
+        while j < img_arr.shape[1] - P_WIDTH:
+            temp_patch = img_arr[i:i + P_WIDTH, j:j + P_WIDTH, :]
+            img_patches.append(temp_patch)
+            j += 1
+        j = 0
+        i += 1
+    return np.array(img_patches, dtype=np.float32)
