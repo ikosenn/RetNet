@@ -161,7 +161,7 @@ def compute_img_patches(train_img, g_truth_img):
             continue
         sub_img_patches.append(img_patches[i])
         sub_labels.append(labels[i])
-    return sub_img_patches / 255.0, sub_labels
+    return sub_img_patches, sub_labels
 
 
 def create_patches(folder_path, g_truth_path, pickle_file=None):
@@ -219,7 +219,7 @@ def create_patches(folder_path, g_truth_path, pickle_file=None):
             destination_name, g_truth_img)
         img_labels.extend(labels)
         img_data.extend(img_arr)
-    data = np.array(img_data, dtype=np.float32)
+    data = np.array(img_data, dtype=np.float32) / 255.0
     labels = np.array(img_labels, dtype=np.int32)
     del img_labels
     del img_data
