@@ -74,10 +74,13 @@ def cnn_model_fn(features, labels, mode):
             labels=labels, predictions=predictions['classes']),
         'precision': tf.metrics.precision(
             labels=labels, predictions=predictions['classes']),
+        'auc': tf.metrics.auc(
+            labels=labels, predictions=predictions['classes']),
     }
     tf.summary.scalar('accuracy', eval_metric_ops['accuracy'][1])
     tf.summary.scalar('recall', eval_metric_ops['recall'][1])
     tf.summary.scalar('precision', eval_metric_ops['precision'][1])
+    tf.summary.scalar('auc', eval_metric_ops['auc'][1])
     if mode == tf.estimator.ModeKeys.TRAIN:
         optimizer = tf.train.AdamOptimizer(
             learning_rate=0.001)
